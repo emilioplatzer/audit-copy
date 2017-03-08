@@ -77,19 +77,80 @@ describe("circular objects", function(){
         var result = auditCopy.brief(theObject);
         assert.deepStrictEqual(result, theCopy);
     });
+    it("allow hiper circular objects", function(){
+        var theObject={};
+        theObject.me=theObject;
+        var theCopy={
+            "me": auditCopy.circularRef(""),
+        }
+        var result = auditCopy.brief(theObject);
+        assert.deepStrictEqual(result, theCopy);
+    });
+    it("allow insider hiper circular objects", function(){
+        var theObject={x:{}};
+        theObject.x.x=theObject.x;
+        var theCopy={
+            "x.x": auditCopy.circularRef("x"),
+        }
+        var result = auditCopy.brief(theObject);
+        assert.deepStrictEqual(result, theCopy);
+    });
+    it("allow circular function", function(){
+        var theObject={f:function(){}};
+        theObject.f.f=theObject.f;
+        var theCopy={
+            "f": theObject.f,
+            "f.f": auditCopy.circularRef("f")
+        }
+        var result = auditCopy.brief(theObject);
+        assert.deepStrictEqual(result, theCopy);
+    });
+    it("allow any value", function(){
+        var theObject={a:null, x:{}, b:{}, c:undefined, d:false, e:new Date(), f:function(){}};
+        theObject.x.x=theObject.x;
+        theObject.f.f=theObject.f;
+        var theCopy={
+            "a": null,
+            "x.x": auditCopy.circularRef("x"),
+            "c": undefined,
+            "d": false,
+            "e": theObject.e,
+            "f": theObject.f,
+            "f.f": auditCopy.circularRef("f")
+        }
+        var result = auditCopy.brief(theObject);
+        assert.deepStrictEqual(result, theCopy);
+    });
+    it("detect rhombus", function(){
+        var theObject=[[1,2]];
+        theObject.push(theObject[0])
+        var theObject2={0:{0:1,1:2}};
+        theObject2[1]=theObject2[0];
+        var theCopy={
+            "": auditCopy.arrayOf(theObject),
+            "0": auditCopy.arrayOf(theObject[0]),
+            "0.0": 1,
+            "0.1": 2,
+            "1": auditCopy.circularRef("0")
+        }
+        var result = auditCopy.brief(theObject);
+        assert.deepStrictEqual(result, theCopy);
+    });
 });
 
 describe("differences", function(){
     it("show", function(){
-        var theObject1={b:{c:'c' , d:{e:'e',f:null}, e:'e'  }};
+        var theObject1={b:{c:'c' , d:{e:'e',f:null}, e:'e'  , g:'g'    }};
         theObject1.b.d.f=theObject1.b;
-        var theObject2={b:{c:'c2', d:{e:'e',f:null}, e:[1,2]}};
+        var theObject2={b:{c:'c2', d:{e:'e',f:null}, e:[1,2], g:{h:'h'}}};
         var theDifferances={
             "b.c": {left:'c', right:'c2'},
             "b.d.f": {left:auditCopy.circularRef("b"), right:null},
-            "b.e": {left:'e'},
+            "b.e": {left:'e', right:auditCopy.arrayOf([1,2])},
             "b.e.0": {right:1},
             "b.e.1": {right:2},
+            "b.g": {left:'g'},
+            "b.g.h": {right:'h'},
         }
         var result = auditCopy.diff(auditCopy.brief(theObject1),auditCopy.brief(theObject2));
         assert.deepStrictEqual(result, theDifferances);

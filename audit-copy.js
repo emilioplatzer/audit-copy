@@ -19,7 +19,7 @@ AuditCopy.inArray = function deepAuditCopy(object){
 
 function inObjectSet(allNodes, object, copy, key, seenObjects, locationOfObjects){
     var actualKey = key.join('.');
-    var isObject = typeof object === "object" && object !== null;
+    var isObject = typeof object === "object"  && object !== null || typeof object === "function";
     if(isObject){
         var indexOfFound = seenObjects.indexOf(object);
         if(indexOfFound === -1){
@@ -30,10 +30,12 @@ function inObjectSet(allNodes, object, copy, key, seenObjects, locationOfObjects
             return; 
         }
     }
-    if(!isObject || allNodes){
+    if(!isObject || allNodes || object instanceof Date || object instanceof RegExp || object instanceof Function){
         copy[actualKey] = object;
+    }else if(object instanceof Array){
+        copy[actualKey] = AuditCopy.arrayOf(object);
     }
-    if(object instanceof Object){
+    if(isObject){
         for(var name in object){
             inObjectSet(allNodes, object[name], copy, key.concat(name.replace('.','\\.')), seenObjects, locationOfObjects);
         }
@@ -58,6 +60,14 @@ function CircularRef(text){
 
 AuditCopy.circularRef = function(text){
     return new CircularRef(text);
+};
+
+function ArrayOf(array){
+    this["[].length"] = array.length;
+}
+
+AuditCopy.arrayOf = function(array){
+    return new ArrayOf(array);
 };
 
 AuditCopy.diff = function(a,b){
