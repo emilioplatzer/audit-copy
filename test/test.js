@@ -4,12 +4,6 @@ var assert = require('assert');
 
 var auditCopy = require('../audit-copy.js');
 
-var x=['hola','che'];
-
-for(var n in x){
-    console.log(x,n,x[n]);
-}
-
 describe("audit-copy create copy", function(){
     it("create an array", function(){
         var theObject = {a:{aa:4}, arr:[5,{bb:3},{cc:[33]}, [44,{x:66}]]};
@@ -56,3 +50,48 @@ describe("audit-copy create copy", function(){
         assert.deepStrictEqual(result, theCopy);
     });
 })
+
+describe("circular objects", function(){
+    it("allow circular objects", function(){
+        var theObject={b:{c:'c', d:{e:'e',f:null}}};
+        theObject.b.d.f=theObject.b;
+        var theCopy={
+            "": theObject,
+            "b": theObject.b,
+            "b.c": theObject.b.c,
+            "b.d": theObject.b.d,
+            "b.d.e": theObject.b.d.e,
+            "b.d.f": auditCopy.circularRef("b"),
+        }
+        var result = auditCopy.inObject(theObject);
+        assert.deepStrictEqual(result, theCopy);
+    });
+    it("only copy leaves", function(){
+        var theObject={b:{c:'c', d:{e:'e',f:null}}};
+        theObject.b.d.f=theObject.b;
+        var theCopy={
+            "b.c": theObject.b.c,
+            "b.d.e": theObject.b.d.e,
+            "b.d.f": auditCopy.circularRef("b"),
+        }
+        var result = auditCopy.brief(theObject);
+        assert.deepStrictEqual(result, theCopy);
+    });
+});
+
+describe("differences", function(){
+    it("show", function(){
+        var theObject1={b:{c:'c' , d:{e:'e',f:null}, e:'e'  }};
+        theObject1.b.d.f=theObject1.b;
+        var theObject2={b:{c:'c2', d:{e:'e',f:null}, e:[1,2]}};
+        var theDifferances={
+            "b.c": {left:'c', right:'c2'},
+            "b.d.f": {left:auditCopy.circularRef("b"), right:null},
+            "b.e": {left:'e'},
+            "b.e.0": {right:1},
+            "b.e.1": {right:2},
+        }
+        var result = auditCopy.diff(auditCopy.brief(theObject1),auditCopy.brief(theObject2));
+        assert.deepStrictEqual(result, theDifferances);
+    });
+});
