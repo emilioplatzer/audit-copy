@@ -2,6 +2,10 @@
 
 var AuditCopy = {};
 
+function isLikeValue(object){
+    return object instanceof Date || object instanceof RegExp || object instanceof Function || object instanceof Error;
+}
+
 function inArraySet(object, copy, key){
     copy.push({key:key, ref:object});
     if(object instanceof Object){
@@ -30,7 +34,7 @@ function inObjectSet(allNodes, object, copy, key, seenObjects, locationOfObjects
             return; 
         }
     }
-    if(!isObject || allNodes || object instanceof Date || object instanceof RegExp || object instanceof Function){
+    if(!isObject || allNodes || isLikeValue(object)){
         copy[actualKey] = object;
     }else if(object instanceof Array){
         copy[actualKey] = AuditCopy.arrayOf(object);

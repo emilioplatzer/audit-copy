@@ -1,7 +1,7 @@
 {
   "name": "audit-copy",
   "description": "copy a JS Object for latter audit and detect modifications",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "author": "Emilio Platzer <emilioplatzer@gmail.com>",
   "repository": "emilioplatzer/audit-copy",
   "license": "MIT",
@@ -13,8 +13,8 @@
   },
   "devDependencies": {
     "expect.js": "~0.3.1",
-    "istanbul": "~0.4.3",
-    "mocha": "~2.4.5"
+    "istanbul": "~0.4.5",
+    "mocha": "~3.2.0"
   },
   "engines": {
     "node": ">= 0.12"

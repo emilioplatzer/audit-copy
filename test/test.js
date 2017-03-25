@@ -106,17 +106,20 @@ describe("circular objects", function(){
         assert.deepStrictEqual(result, theCopy);
     });
     it("allow any value", function(){
-        var theObject={a:null, x:{}, b:{}, c:undefined, d:false, e:new Date(), f:function(){}};
+        var theObject={a:null, x:{}, b:{}, c:undefined, d:false, e:new Date(), f:function(){}, r:/[a-z]/g};
         theObject.x.x=theObject.x;
         theObject.f.f=theObject.f;
+        theObject.e.more="more data";
         var theCopy={
             "a": null,
             "x.x": auditCopy.circularRef("x"),
             "c": undefined,
             "d": false,
             "e": theObject.e,
+            "e.more": "more data",
             "f": theObject.f,
-            "f.f": auditCopy.circularRef("f")
+            "f.f": auditCopy.circularRef("f"),
+            "r": theObject.r
         }
         var result = auditCopy.brief(theObject);
         assert.deepStrictEqual(result, theCopy);
@@ -151,6 +154,33 @@ describe("differences", function(){
             "b.e.1": {right:2},
             "b.g": {left:'g'},
             "b.g.h": {right:'h'},
+        }
+        var result = auditCopy.diff(auditCopy.brief(theObject1),auditCopy.brief(theObject2));
+        assert.deepStrictEqual(result, theDifferances);
+    });
+    it("works good with Error", function(){
+        var theObject1={
+            e1:new Error("common equal Error"),
+            e2:new Error("common diff Error"),
+            e3:new Error("special Error"),
+            e4:new TypeError("classed Error"),
+            e5:"Error: non Error",
+        };
+        var theObject2={
+            e1:new Error("common equal Error"),
+            e2:new Error("common diff Error 2"),
+            e3:new Error("special Error"),
+            e4:new Error("classed Error"),
+            e5:new Error("non Error"),
+        };
+        theObject2.e1=theObject1.e1;
+        theObject2.e3.more="more info";
+        var theDifferances={
+            "e2": {left:theObject1.e2, right:theObject2.e2},
+            "e3": {left:theObject1.e3, right:theObject2.e3},
+            "e3.more": {right:"more info"},
+            "e4": {left:theObject1.e4, right:theObject2.e4},
+            "e5": {left:theObject1.e5, right:theObject2.e5},
         }
         var result = auditCopy.diff(auditCopy.brief(theObject1),auditCopy.brief(theObject2));
         assert.deepStrictEqual(result, theDifferances);
