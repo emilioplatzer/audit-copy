@@ -1,7 +1,7 @@
 {
   "name": "audit-copy",
   "description": "copy a JS Object for latter audit and detect modifications",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "author": "Emilio Platzer <emilioplatzer@gmail.com>",
   "repository": "emilioplatzer/audit-copy",
   "license": "MIT",
@@ -9,20 +9,19 @@
   "files": [
     "audit-copy.js"
   ],
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
-    "expect.js": "~0.3.1",
-    "istanbul": "~0.4.5",
-    "mocha": "~3.2.0"
+    "expect.js": "^0.3.1",
+    "nyc": "^15.1.0",
+    "mocha": "^9.1.3"
   },
   "engines": {
-    "node": ">= 0.12"
+    "node": ">= 12"
   },
   "scripts": {
     "test": "mocha --reporter spec --bail --check-leaks test/",
-    "test-ci": "istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --reporter spec --check-leaks test/",
-    "test-cov": "istanbul cover node_modules/mocha/bin/_mocha -- --reporter dot --check-leaks test/",
+    "test-ci": "nyc mocha --report lcovonly -- --reporter spec --check-leaks test/",
+    "test-cov": "nyc mocha -- --reporter dot --check-leaks test/",
     "test-nc": "mocha --reporter spec --bail --check-leaks --no-colors test/"
   },
   "qa-control": {

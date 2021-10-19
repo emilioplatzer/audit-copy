@@ -1,6 +1,28 @@
 "use strict";
 
+(function codenautasModuleDefinition(root, name, factory) {
+    /* global define */
+    /* istanbul ignore next */
+    if(typeof root.globalModuleName !== 'string'){
+        root.globalModuleName = name;
+    }
+    /* istanbul ignore next */
+    if(typeof exports === 'object' && typeof module === 'object'){
+        module.exports = factory();
+    }else if(typeof define === 'function' && define.amd){
+        define(factory);
+    }else if(typeof exports === 'object'){
+        exports[root.globalModuleName] = factory();
+    }else{
+        root[root.globalModuleName] = factory();
+    }
+    root.globalModuleName = null;
+})(/*jshint -W040 */this, 'AuditCopy', function() {
+/*jshint +W040 */
+
+/*jshint -W004 */
 var AuditCopy = {};
+/*jshint +W004 */
 
 function isLikeValue(object){
     return object instanceof Date || object instanceof RegExp || object instanceof Function || object instanceof Error;
@@ -15,7 +37,7 @@ function inArraySet(object, copy, key){
     }
 }
 
-AuditCopy.inArray = function deepAuditCopy(object){
+AuditCopy.inArray = function inArray(object){
     var copy = [];
     inArraySet(object, copy, []);
     return copy;
@@ -46,13 +68,13 @@ function inObjectSet(allNodes, object, copy, key, seenObjects, locationOfObjects
     }
 }
 
-AuditCopy.inObject = function deepAuditCopy(object){
+AuditCopy.inObject = function inObject(object){
     var copy = {};
     inObjectSet(true, object, copy, [], [], []);
     return copy;
 }
 
-AuditCopy.brief = function deepAuditCopy(object){
+AuditCopy.brief = function brief(object){
     var copy = {};
     inObjectSet(false, object, copy, [], [], []);
     return copy;
@@ -93,4 +115,6 @@ AuditCopy.diff = function(a,b){
     return rta;
 };
 
-module.exports = AuditCopy;
+return AuditCopy;
+
+});
