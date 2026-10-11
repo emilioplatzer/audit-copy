@@ -107,7 +107,7 @@ AuditCopy.diff = function(a,b){
             rta[attr]={left:a[attr]};
         }
     }
-    for(var attr in b){
+    for(var attr in b){ // eslint-disable-line no-redeclare
         if(!(attr in a)){
             rta[attr]={right:b[attr]};
         }
