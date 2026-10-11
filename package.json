@@ -26,6 +26,7 @@
   "qa-control": {
     "coverage": 90,
     "run-in": "server",
-    "type": "lib"
+    "type": "lib",
+    "gha": "all"
   }
 }
